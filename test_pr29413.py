@@ -9,7 +9,8 @@ from FWLiteAnalyzer import FWLiteAnalyzer
 inputFiles = ['step2.root']
 
 handles = {
-  'muons': ('BXVector<l1t::Muon>', 'simGmtStage2Digis')
+  #'muons': ('BXVector<l1t::Muon>', 'simGmtStage2Digis')
+  'muons_emtf': ('BXVector<l1t::RegionalMuonCand>', 'simEmtfDigis:EMTF')
 }
 
 # ______________________________________________________________________________
@@ -22,15 +23,16 @@ if __name__ == "__main__":
   analyzer.beginLoop()
 
   for ievt, event in enumerate(analyzer.processLoop()):
-    muons = analyzer.handles['muons'].product()
+    #muons = analyzer.handles['muons'].product()
+    muons = analyzer.handles['muons_emtf'].product()
 
     for bx in range(muons.getFirstBX(), muons.getLastBX()+1):
-      it = muons.begin(bx)
-      muons_in_bx = [next(it) for i in range(muons.size(bx))]
+      muons_in_bx = [muons.at(bx, i) for i in range(muons.size(bx))]
       for muon in muons_in_bx:
-        print(muon.pt(), muon.eta(), muon.phi(), muon.charge())
+        #print(muon.pt(), muon.eta(), muon.phi(), muon.charge())
+        print(muon.hwPt(), muon.hwEta(), muon.hwPhi(), muon.hwSign())
         n += 1
-        t += muon.pt()
+        t += muon.hwPt()
 
   analyzer.endLoop()
 
