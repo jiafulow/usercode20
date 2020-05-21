@@ -5,14 +5,14 @@ from __future__ import division
 from __future__ import print_function
 
 import six
-from ROOT import gROOT, gSystem, AutoLibraryLoader
-from DataFormats.FWLite import Events, Handle
+from ROOT import gROOT, gSystem, AutoLibraryLoader, TChain
+#from DataFormats.FWLite import Events, Handle
 
 # A simple FWLite-based python analyzer
 # Based on https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookFWLitePython
 # Some snippets of codes are stolen from PhysicsTools/Heppy
 
-class FWLiteAnalyzer(object):
+class L1NtupleAnalyzer(object):
 
   def __init__(self, inputFiles=None, handles=None, firstEvent=None, maxEvents=None):
     gROOT.SetBatch()  # don't pop up canvases
@@ -25,7 +25,17 @@ class FWLiteAnalyzer(object):
     else:
       self.inputFiles = []
 
-    self.events = Events(self.inputFiles)
+    l1tree = 'l1UpgradeTree/L1UpgradeTree'
+    #l1tree = 'l1UpgradeEmuTree/L1UpgradeTree'
+    tftree = 'l1UpgradeTfMuonTree/L1UpgradeTfMuonTree'
+    #tftree = 'l1UpgradeTfMuonEmuTree/L1UpgradeTfMuonTree'
+
+    cc_l1 = TChain(l1tree)
+    cc_tf = TChain(tftree)
+    for f in self.inputFiles:
+      cc_l1.Add(f)
+      cc_tf.Add(f)
+    self.events = six.moves.zip(cc_l1, cc_tf)
 
     self.handles = {}
     self.handle_labels = {}
@@ -71,7 +81,7 @@ class FWLiteAnalyzer(object):
     return
 
   def process(self, evt):
-    self.getHandles(evt)
+    #self.getHandles(evt)
     return
 
   def getHandles(self, evt):
@@ -84,8 +94,8 @@ class FWLiteAnalyzer(object):
 # ______________________________________________________________________________
 if __name__ == '__main__':
   #print('Loading FW Lite')
-  gSystem.Load('libFWCoreFWLite')
-  gROOT.ProcessLine('FWLiteEnabler::enable();')
+  #gSystem.Load('libFWCoreFWLite')
+  #gROOT.ProcessLine('FWLiteEnabler::enable();')
 
-  analyzer = FWLiteAnalyzer(inputFiles='pippo.root')
+  analyzer = L1NtupleAnalyzer(inputFiles='pippo.root')
   analyzer.analyze()

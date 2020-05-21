@@ -10,11 +10,11 @@ inputFiles = ['step2.root']
 
 handles = {
   #'muons': ('BXVector<l1t::Muon>', 'simGmtStage2Digis')
-  'muons_emtf': ('BXVector<l1t::RegionalMuonCand>', 'simEmtfDigis:EMTF')
+  'muons_tf': ('BXVector<l1t::RegionalMuonCand>', 'simEmtfDigis:EMTF')
 }
 
 # ______________________________________________________________________________
-if __name__ == "__main__":
+if __name__ == '__main__':
   analyzer = FWLiteAnalyzer(inputFiles, handles)
 
   n = 0
@@ -22,9 +22,9 @@ if __name__ == "__main__":
 
   analyzer.beginLoop()
 
-  for ievt, event in enumerate(analyzer.processLoop()):
+  for ievt, evt in enumerate(analyzer.processLoop()):
     #muons = analyzer.handles['muons'].product()
-    muons = analyzer.handles['muons_emtf'].product()
+    muons = analyzer.handles['muons_tf'].product()
 
     for bx in range(muons.getFirstBX(), muons.getLastBX()+1):
       muons_in_bx = [muons.at(bx, i) for i in range(muons.size(bx))]
