@@ -13,6 +13,8 @@ handles = {
   'muons_tf': ('BXVector<l1t::RegionalMuonCand>', 'simEmtfDigis:EMTF')
 }
 
+use_tf = False
+
 # ______________________________________________________________________________
 if __name__ == '__main__':
   analyzer = FWLiteAnalyzer(inputFiles, handles)
@@ -23,18 +25,27 @@ if __name__ == '__main__':
   analyzer.beginLoop()
 
   for ievt, evt in enumerate(analyzer.processLoop()):
-    #muons = analyzer.handles['muons'].product()
-    muons = analyzer.handles['muons_tf'].product()
+    #print('Processing event: %i' % ievt)
+    if use_tf:
+      muons = analyzer.handles['muons_tf'].product()
+    else:
+      muons = analyzer.handles['muons'].product()
 
     for bx in range(muons.getFirstBX(), muons.getLastBX()+1):
       muons_in_bx = [muons.at(bx, i) for i in range(muons.size(bx))]
       for muon in muons_in_bx:
-        #print(muon.pt(), muon.eta(), muon.phi(), muon.charge())
-        print(muon.hwPt(), muon.hwEta(), muon.hwPhi(), muon.hwSign())
+        if use_tf:
+          print(muon.hwPt(), muon.hwEta(), muon.hwPhi(), muon.hwSign())
+        else:
+          print(muon.pt(), muon.eta(), muon.phi(), muon.charge())
+
         n += 1
-        t += muon.hwPt()
+        if use_tf:
+          t += muon.hwPt()
+        else:
+          t += muon.pt()
 
   analyzer.endLoop()
 
   t /= n
-  print('t:', t)
+  print('n:', n, 't:', t)
